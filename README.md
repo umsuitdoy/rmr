@@ -118,3 +118,7 @@ To manually verify a web session with a sample repository:
 - Restart with the same repo and domain/key to confirm the URL is preserved.
 - Stop, rotate the key, restart, and confirm the old URL is rejected.
 - Stop the tunnel when finished.
+
+## License
+
+RMR is released under the [MIT License](LICENSE). Third-party tools (`ngrok`, `ripgrep`, `ast-grep`, and [CodeGraph](https://github.com/colbymchenry/codegraph)) are not bundled with RMR; they are installed separately by the user and governed by their own licenses.
