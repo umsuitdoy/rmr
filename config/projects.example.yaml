@@ -1,0 +1,6 @@
+projects:
+  rmr:
+    root_path: "."
+    language: "python"
+    entry_docs:
+      - "README.md"

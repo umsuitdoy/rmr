@@ -1,0 +1,15 @@
+# dotenv files
+.env
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+
+# Agent, tasks & docs
+.agents/*
+.tasks/*
+docs/*
+!docs/architecture.md
