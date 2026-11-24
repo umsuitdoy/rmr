@@ -156,7 +156,12 @@ def register_investigate_tool(
 
     @mcp.tool(
         name="investigate_codebase",
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         description=(
             "Điều tra kho mã nguồn Tier 2: "
             "'outline' (chữ ký class/hàm/docstring), 'symbol' (định nghĩa và references bằng Jedi), "

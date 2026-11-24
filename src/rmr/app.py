@@ -32,7 +32,12 @@ def create_app() -> FastMCP:
     )
 
     @mcp.tool(
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         description="Kiểm tra trạng thái sẵn sàng của RMR MCP Server.",
     )
     def ping() -> dict[str, str]:

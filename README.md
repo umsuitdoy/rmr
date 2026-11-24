@@ -1,8 +1,11 @@
 # RMR
 
-RMR gives web MCP clients read-only access to one Git repository at a time. Its three analysis tools explore a repository, trace code relationships, and retrieve source excerpts or Git diffs.
+[![M8ven Verified](https://m8ven.ai/badge/mcp/umsuitdoy/rmr?variant=verified)](https://m8ven.ai/mcp/umsuitdoy/rmr?s=readme)
 
-Leverage the reasoning capabilities of models that are not integrated into your programming CLI.
+GitHub connectors and file uploads only show web AI static snapshots—missing uncommitted edits and code relationships. RMR gives web models read-only code intelligence over your live local repository via MCP:
+- Smart search: Query AST patterns (ast-grep) and text (ripgrep).
+- Deep context: Resolve symbols, callers, and change impact with CodeGraph.
+- Live state: Pull uncommitted git diffs and SHA-256 verified excerpts without copy-pasting.
 
 ## Requirements
 

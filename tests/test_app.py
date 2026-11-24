@@ -32,8 +32,10 @@ class TestApp(unittest.TestCase):
             self.assertIn("ping", tool_names)
 
             ping_tool = next(t for t in tools if t.name == "ping")
-            self.assertTrue(getattr(ping_tool.annotations, "read_only_hint", getattr(ping_tool.annotations, "readOnlyHint", False)))
-            self.assertTrue(getattr(ping_tool.annotations, "idempotent_hint", getattr(ping_tool.annotations, "idempotentHint", False)))
+            self.assertIs(getattr(ping_tool.annotations, "read_only_hint", getattr(ping_tool.annotations, "readOnlyHint", None)), True)
+            self.assertIs(getattr(ping_tool.annotations, "destructive_hint", getattr(ping_tool.annotations, "destructiveHint", None)), False)
+            self.assertIs(getattr(ping_tool.annotations, "idempotent_hint", getattr(ping_tool.annotations, "idempotentHint", None)), True)
+            self.assertIs(getattr(ping_tool.annotations, "open_world_hint", getattr(ping_tool.annotations, "openWorldHint", None)), False)
 
             result = await app.call_tool("ping")
             is_err = getattr(result, "is_error", getattr(result, "isError", False))
@@ -61,8 +63,10 @@ class TestApp(unittest.TestCase):
             tool_by_name = {t.name: t for t in tools}
 
             for t in tool_by_name.values():
-                self.assertTrue(getattr(t.annotations, "read_only_hint", getattr(t.annotations, "readOnlyHint", False)))
-                self.assertTrue(getattr(t.annotations, "idempotent_hint", getattr(t.annotations, "idempotentHint", False)))
+                self.assertIs(getattr(t.annotations, "read_only_hint", getattr(t.annotations, "readOnlyHint", None)), True)
+                self.assertIs(getattr(t.annotations, "destructive_hint", getattr(t.annotations, "destructiveHint", None)), False)
+                self.assertIs(getattr(t.annotations, "idempotent_hint", getattr(t.annotations, "idempotentHint", None)), True)
+                self.assertIs(getattr(t.annotations, "open_world_hint", getattr(t.annotations, "openWorldHint", None)), False)
 
         asyncio.run(_verify())
 

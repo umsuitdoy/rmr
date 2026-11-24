@@ -103,7 +103,12 @@ def register_evidence_tool(
 
     @mcp.tool(
         name="inspect_evidence",
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         description=(
             "Trích xuất bằng chứng kỹ thuật chính xác (Tier 3) kèm mã băm SHA-256 "
             "và trạng thái Working Tree: đọc dòng code ('file_lines'), đọc symbol ('symbol'), "

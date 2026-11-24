@@ -151,7 +151,12 @@ def register_overview_tool(
 
     @mcp.tool(
         name="get_project_overview",
-        annotations={"readOnlyHint": True, "idempotentHint": True},
+        annotations={
+            "readOnlyHint": True,
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": False,
+        },
         description=(
             "Lấy thông tin tổng quan Tier 1: danh sách dự án (khi không truyền project_id) "
             "hoặc cây file, tài liệu cơ sở (entry_docs), ADRs và trạng thái working tree (tree_state)."

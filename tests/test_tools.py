@@ -100,7 +100,9 @@ def test_local_mcp_exposes_read_only_tools():
     assert {tool.name for tool in components.values()} == expected_tools
     for tool in components.values():
         assert tool.annotations.read_only_hint is True
+        assert tool.annotations.destructive_hint is False
         assert tool.annotations.idempotent_hint is True
+        assert tool.annotations.open_world_hint is False
         assert "config_path" not in tool.parameters.get("properties", {})
 
 
