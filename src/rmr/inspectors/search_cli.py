@@ -14,7 +14,7 @@ SAFE_LANG_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_+#.-]*$")
 
 
 def _normalize_match_path(raw_file: str | Path, target_input: Path, resolved: Path | None) -> str:
-    """Chuẩn hóa đường dẫn file trả về sang dạng tương đối POSIX (dấu '/')."""
+    """Normalize a matched file path to relative POSIX format ('/')."""
     cand = Path(raw_file)
     if resolved is not None and cand.is_absolute():
         try:
@@ -30,7 +30,7 @@ def _normalize_match_path(raw_file: str | Path, target_input: Path, resolved: Pa
 
 
 def _python_grep_fallback(target_input: Path, resolved: Path, query: str, limit: int) -> tuple[list[dict], bool]:
-    """Fallback tìm kiếm bằng Python thuần khi hệ thống chưa cài ripgrep (rg)."""
+    """Pure-Python search fallback when ripgrep (rg) is not installed."""
     try:
         regex = re.compile(query)
     except re.error:
@@ -66,7 +66,7 @@ def _python_grep_fallback(target_input: Path, resolved: Path, query: str, limit:
 
 
 def _exec_cli(cmd: list[str], timeout: int) -> subprocess.CompletedProcess[str]:
-    """Thực thi lệnh CLI subprocess an toàn với shell=False."""
+    """Execute a CLI subprocess safely with shell=False."""
     return subprocess.run(
         cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", shell=False, timeout=timeout, check=False
     )
@@ -75,7 +75,7 @@ def _exec_cli(cmd: list[str], timeout: int) -> subprocess.CompletedProcess[str]:
 def run_ripgrep(
     target_path: Path | str, query: str, max_results: int = 30, timeout: int = 5
 ) -> tuple[list[dict], bool]:
-    """Chạy ripgrep trích xuất kết quả dưới dạng JSON stream, chống Argument Injection bằng '--'."""
+    """Run ripgrep with JSON stream output, preventing argument injection via '--'."""
     if not query:
         return [], False
     target_input = Path(target_path)
@@ -121,7 +121,7 @@ def run_ast_grep(
     max_results: int = 30,
     timeout: int = 5,
 ) -> tuple[list[dict], bool]:
-    """Chạy ast-grep tìm kiếm theo mẫu cú pháp AST với '--' chống Argument Injection."""
+    """Run ast-grep for structural AST pattern search, preventing argument injection via '--'."""
     if not pattern:
         return [], False
     if not language or not SAFE_LANG_RE.match(language):

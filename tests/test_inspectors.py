@@ -45,7 +45,7 @@ def _run_git_cmd(cmd: list[str], cwd: Path) -> str:
 
 @pytest.fixture
 def temp_git_repo(tmp_path: Path) -> Path:
-    """Khởi tạo một Git repository tạm có commit ban đầu phục vụ kiểm thử."""
+    """Initialize a temporary Git repository with an initial commit for testing."""
     repo = tmp_path / "test_repo"
     repo.mkdir()
 

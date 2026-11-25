@@ -23,11 +23,11 @@ __all__ = ["inspect_evidence", "register_evidence_tool"]
 
 
 def _process_target(root: Path, target: EvidenceTarget | dict[str, Any]) -> EvidenceItem:
-    """Xử lý từng mục tiêu trích xuất bằng chứng (file_lines, symbol, git_diff)."""
+    """Process a single evidence extraction target (file_lines, symbol, or git_diff)."""
     t = target if isinstance(target, EvidenceTarget) else EvidenceTarget(**target)
     norm_path = t.path.replace("\\", "/")
 
-    # Chống Path Traversal cho mọi target
+    # Guard against path traversal for every target
     resolve_read_path(root, norm_path, allow_missing=True)
 
     if t.kind == "file_lines":
@@ -75,7 +75,7 @@ def inspect_evidence(
     *,
     projects: Mapping[str, ProjectConfig] | None = None,
 ) -> dict[str, Any]:
-    """Trích xuất bằng chứng kỹ thuật chính xác (Tier 3) kèm mã băm SHA-256 và trạng thái Working Tree."""
+    """Extract exact technical evidence (Tier 3) with SHA-256 hashes and working tree state."""
     if not targets:
         raise ValueError("targets list must not be empty")
 
@@ -99,7 +99,7 @@ def register_evidence_tool(
     *,
     projects: Mapping[str, ProjectConfig] | None = None,
 ) -> None:
-    """Đăng ký tool 'inspect_evidence' lên đối tượng FastMCP."""
+    """Register the 'inspect_evidence' tool on a FastMCP instance."""
 
     @mcp.tool(
         name="inspect_evidence",
@@ -110,9 +110,9 @@ def register_evidence_tool(
             "openWorldHint": False,
         },
         description=(
-            "Trích xuất bằng chứng kỹ thuật chính xác (Tier 3) kèm mã băm SHA-256 "
-            "và trạng thái Working Tree: đọc dòng code ('file_lines'), đọc symbol ('symbol'), "
-            "hoặc lấy git diff ('git_diff')."
+            "Extract exact technical evidence (Tier 3) with SHA-256 content hashes "
+            "and working tree state: read line ranges ('file_lines'), extract symbol source ('symbol'), "
+            "or fetch a Git diff ('git_diff')."
         ),
     )
     def inspect_evidence_tool(

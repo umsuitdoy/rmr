@@ -16,7 +16,7 @@ __all__ = [
 
 
 def find_default_config_path() -> Path:
-    """Tìm registry local trước, sau đó dùng registry mẫu của gói nguồn."""
+    """Prefer the local registry first, then fall back to the bundled example registry."""
     local_config = Path("config")
     repo_config = Path(__file__).resolve().parents[3] / "config"
     for filename in ("projects.yaml", "projects.example.yaml"):
@@ -29,14 +29,14 @@ def find_default_config_path() -> Path:
 
 def load_projects_config(config_path: Path | None = None) -> dict[str, ProjectConfig]:
     """
-    Đọc file projects.yaml an toàn và validate qua Pydantic v2 ProjectConfig.
+    Safely read projects.yaml and validate entries with Pydantic v2 ProjectConfig.
 
-    Trả về:
-        Dict dạng {project_id: ProjectConfig}.
+    Returns:
+        Dict mapping {project_id: ProjectConfig}.
 
-    Ngoại lệ:
-        FileNotFoundError: Nếu file config không tồn tại.
-        ValueError: Nếu định dạng yaml không hợp lệ.
+    Raises:
+        FileNotFoundError: If the config file does not exist.
+        ValueError: If the YAML format or project schema is invalid.
     """
     path = config_path or find_default_config_path()
     if not path.is_file():
@@ -76,10 +76,10 @@ def get_project(
     projects: Mapping[str, ProjectConfig] | None = None,
 ) -> ProjectConfig:
     """
-    Lấy thông tin cấu hình của 1 project cụ thể.
+    Retrieve the configuration for a single project.
 
-    Ngoại lệ:
-        KeyError: Nếu project_id không nằm trong danh sách được cấp phép (thông báo rõ danh sách khả dụng).
+    Raises:
+        KeyError: If project_id is not in the registered list (message includes available IDs).
     """
     if projects is None:
         projects = load_projects_config(config_path)
@@ -97,7 +97,7 @@ def resolve_project_root(
     *,
     frozen: bool = False,
 ) -> Path:
-    """Xác định đường dẫn vật lý thực tế của thư mục dự án."""
+    """Resolve the real filesystem path of the project root directory."""
     raw = Path(proj.root_path)
     if raw.is_absolute():
         root = raw.resolve(strict=True)

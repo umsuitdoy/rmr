@@ -19,16 +19,16 @@ from rmr.desktop_config import (
 from rmr.desktop_runtime import SessionController, SessionStatus, desktop_data_dir
 
 _FIELDS = (
-    ("project_root", "Thư mục đọc"),
-    ("domain", "Miền ngrok"),
-    ("port", "Cổng local"),
-    ("url_key", "Khóa URL"),
+    ("project_root", "Repository root"),
+    ("domain", "ngrok domain"),
+    ("port", "Local port"),
+    ("url_key", "URL key"),
 )
 _STATE_LABELS = {
-    "stopped": "Đã dừng",
-    "starting": "Đang khởi động",
-    "online": "Đang chạy",
-    "stopping": "Đang dừng",
+    "stopped": "Stopped",
+    "starting": "Starting",
+    "online": "Online",
+    "stopping": "Stopping",
 }
 
 
@@ -107,19 +107,19 @@ class DesktopWindow:
                 entry.configure(show="*")
                 self._key_entry = entry
 
-        browse = ttk.Button(panel, text="Chọn thư mục…", command=self._choose_directory)
+        browse = ttk.Button(panel, text="Browse…", command=self._choose_directory)
         browse.grid(row=0, column=2, padx=(8, 0), sticky="ew")
-        rotate = ttk.Button(panel, text="Sinh khóa mới", command=self._rotate_key)
+        rotate = ttk.Button(panel, text="Rotate key", command=self._rotate_key)
         rotate.grid(row=6, column=2, padx=(8, 0), sticky="ew")
         self._session_fields.extend((browse, rotate))
 
         ttk.Checkbutton(
             panel,
-            text="Hiện khóa và URL",
+            text="Show key and URL",
             variable=self.visible,
             command=self._toggle_visibility,
         ).grid(row=8, column=1, sticky="w", pady=(0, 8))
-        ttk.Label(panel, text="URL MCP").grid(row=9, column=0, sticky="w")
+        ttk.Label(panel, text="MCP URL").grid(row=9, column=0, sticky="w")
         self._url_entry = ttk.Entry(
             panel, textvariable=self.url, state="readonly", show="*"
         )
@@ -137,11 +137,11 @@ class DesktopWindow:
         self._start_button.pack(side="left")
         self._stop_button = ttk.Button(actions, text="Stop", command=self.stop)
         self._stop_button.pack(side="left", padx=(8, 0))
-        ttk.Label(panel, text="Server MCP").grid(row=13, column=0, sticky="w")
+        ttk.Label(panel, text="MCP Server").grid(row=13, column=0, sticky="w")
         ttk.Label(panel, textvariable=self.server_status).grid(
             row=13, column=1, sticky="w"
         )
-        ttk.Label(panel, text="Tunnel ngrok").grid(row=14, column=0, sticky="w")
+        ttk.Label(panel, text="ngrok Tunnel").grid(row=14, column=0, sticky="w")
         ttk.Label(panel, textvariable=self.tunnel_status).grid(
             row=14, column=1, sticky="w"
         )
@@ -152,7 +152,7 @@ class DesktopWindow:
     def _choose_directory(self) -> None:
         directory = filedialog.askdirectory(
             parent=self.root,
-            title="Chọn thư mục gốc Git",
+            title="Select Git repository root",
             mustexist=True,
             initialdir=self.fields["project_root"].get() or str(Path.home()),
         )
@@ -183,7 +183,7 @@ class DesktopWindow:
         self.url.set(url)
         self._copy_button.configure(state="normal" if url else "disabled")
         self.rotation_notice.set(
-            "Khi Start với khóa mới, URL cũ sẽ hết hiệu lực. Cập nhật URL trong Custom App."
+            "Starting with a new key invalidates the previous URL. Update the URL in your Custom App."
             if key != self._initial_key
             else ""
         )
@@ -193,7 +193,7 @@ class DesktopWindow:
         if url:
             self.root.clipboard_clear()
             self.root.clipboard_append(url)
-            self.notice.set("Đã sao chép URL MCP.")
+            self.notice.set("Copied MCP URL.")
 
     def _values(self) -> dict[str, str]:
         return {name: variable.get() for name, variable in self.fields.items()}
@@ -208,21 +208,21 @@ class DesktopWindow:
                 self._messages.put((str(issue["loc"][0]), issue["msg"]))
             return
         except OSError:
-            self._messages.put(("project_root", "Không thể đọc thư mục đã chọn."))
+            self._messages.put(("project_root", "Could not read the selected directory."))
             return
         if launch and self._cancel.is_set():
             return
         try:
             save_settings(self.settings_path, settings)
         except OSError:
-            self._messages.put(("error", "Không thể lưu cấu hình RMR Desktop."))
+            self._messages.put(("error", "Could not save RMR Desktop settings."))
             return
         self._saved_values = values
         if launch and not self._cancel.is_set():
             try:
                 self.controller.start(settings)
             except Exception:  # noqa: BLE001 - keep unexpected worker details out of UI logs
-                self._messages.put(("error", "Không thể khởi động phiên RMR."))
+                self._messages.put(("error", "Could not start the RMR session."))
 
     def _launch_form(self, values: dict[str, str], *, launch: bool) -> None:
         self._form_job = Thread(
@@ -234,7 +234,7 @@ class DesktopWindow:
         try:
             self.controller.stop()
         except Exception:  # noqa: BLE001 - keep unexpected worker details out of UI logs
-            self._messages.put(("error", "Không thể dừng phiên RMR. Hãy thử lại."))
+            self._messages.put(("error", "Could not stop the RMR session. Please try again."))
 
     def start(self) -> None:
         if (
@@ -249,7 +249,7 @@ class DesktopWindow:
         values = self._values()
         if not values["project_root"].strip():
             self.field_errors["project_root"].set(
-                "Chọn thư mục gốc Git trước khi Start."
+                "Select a Git repository root before starting."
             )
             return
         self._launch_form(values, launch=True)
@@ -287,8 +287,8 @@ class DesktopWindow:
         key = self.fields["url_key"].get()
         url = self.url.get()
         if url:
-            message = message.replace(url, "[URL đã ẩn]")
-        return message.replace(key, "[khóa đã ẩn]") if key else message
+            message = message.replace(url, "[URL redacted]")
+        return message.replace(key, "[key redacted]") if key else message
 
     def _poll(self) -> None:
         while True:

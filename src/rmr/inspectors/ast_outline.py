@@ -13,7 +13,7 @@ __all__ = [
 
 
 def _format_func(node: ast.FunctionDef | ast.AsyncFunctionDef) -> dict:
-    """Trích xuất thông tin hàm/method: tên, tham số, khoảng dòng và dòng đầu docstring."""
+    """Extract function/method metadata: name, parameters, line range, and first docstring line."""
     args: list[str] = [a.arg for a in getattr(node.args, "posonlyargs", [])]
     args.extend(a.arg for a in node.args.args)
     if hasattr(node.args, "kwonlyargs"):
@@ -34,7 +34,7 @@ def _format_func(node: ast.FunctionDef | ast.AsyncFunctionDef) -> dict:
 
 
 def extract_file_outline(py_file: Path, rel_path: str) -> dict:
-    """Trích xuất chữ ký class/function và dòng đầu docstring từ một file Python."""
+    """Extract class/function signatures and first docstring lines from a Python file."""
     normalized_rel = rel_path.replace("\\", "/")
     if not py_file.is_file():
         return {
@@ -87,7 +87,7 @@ def extract_directory_outline(
     subpath: str | None = None,
     max_results: int = 30,
 ) -> tuple[list[dict], bool]:
-    """Quét các file .py trong subpath (hoặc project_root) và trích xuất outline."""
+    """Scan Python files under subpath (or project_root) and extract their outlines."""
     root = Path(project_root).resolve(strict=True)
     target_path = resolve_read_path(root, subpath)
 

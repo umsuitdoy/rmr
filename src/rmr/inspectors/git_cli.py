@@ -18,7 +18,7 @@ REF_PATTERN = re.compile(r"^[A-Za-z0-9_./~^@-]+$")
 
 
 def _run_git(repo_root: Path | str, args: list[str], timeout: int = 5) -> str:
-    """Thực thi lệnh git subprocess an toàn với shell=False và encoding UTF-8."""
+    """Run a git subprocess safely with shell=False and UTF-8 encoding."""
     cmd = ["git", "-C", str(Path(repo_root)), "-c", "core.fsmonitor=false", *args]
     res = subprocess.run(
         cmd,
@@ -34,11 +34,11 @@ def _run_git(repo_root: Path | str, args: list[str], timeout: int = 5) -> str:
 
 
 def get_tree_state(repo_root: Path | str) -> TreeState:
-    """Tính head_commit, is_dirty và worktree_fingerprint để phát hiện race condition giữa 2 lượt gọi.
+    """Compute head_commit, is_dirty, and worktree_fingerprint to detect changes between calls.
 
-    Logic băm fingerprint:
-    - Băm SHA-256 từ: head_commit + porcelain output + mtime/size của các file bẩn đang thay đổi.
-    - Cắt lấy 12 ký tự hex đầu tiên.
+    Fingerprint hashing logic:
+    - SHA-256 of head_commit + porcelain output + mtime/size of modified or untracked files.
+    - Truncated to the first 12 hex characters.
     """
     root = Path(repo_root).resolve(strict=True)
     try:
@@ -78,13 +78,13 @@ def get_tree_state(repo_root: Path | str) -> TreeState:
 
 
 def list_project_files(repo_root: Path | str, subpath: str | None = None) -> list[str]:
-    """Lấy danh sách file dự án (cả cached lẫn untracked tuân thủ .gitignore).
+    """List project files (both tracked and untracked, respecting .gitignore).
 
-    Lệnh chạy:
+    Command:
         git -C <repo_root> ls-files --cached --others --exclude-standard [-- <subpath>]
 
-    Trả về:
-        Danh sách đường dẫn file tương đối dạng POSIX (dấu /), đã loại trùng và sắp xếp alphabet.
+    Returns:
+        Deduplicated, alphabetically sorted list of relative POSIX file paths ('/').
     """
     root = Path(repo_root).resolve(strict=True)
     args = ["--literal-pathspecs", "ls-files", "-z", "--cached", "--others", "--exclude-standard"]
@@ -108,13 +108,13 @@ def get_git_diff(
     base_ref: str = "HEAD",
     target_ref: str = "WORKTREE",
 ) -> str:
-    """Trích xuất git diff an toàn.
+    """Safely extract a git diff.
 
-    Tham số:
-        repo_root: Đường dẫn gốc repo.
-        rel_path: Đường dẫn file tương đối (chèn sau dấu '--' để chặn injection).
-        base_ref: Commit hash, branch hoặc tag gốc (mặc định 'HEAD').
-        target_ref: Ref đích hoặc 'WORKTREE' (nếu là WORKTREE thì chỉ so sánh với thư mục làm việc).
+    Args:
+        repo_root: Repository root directory.
+        rel_path: Relative file path (placed after '--' to prevent argument injection).
+        base_ref: Base commit hash, branch, or tag (default 'HEAD').
+        target_ref: Target ref or 'WORKTREE' (compares against the working directory when 'WORKTREE').
     """
     root = Path(repo_root).resolve(strict=True)
     if not base_ref or base_ref.startswith("-") or not REF_PATTERN.match(base_ref):

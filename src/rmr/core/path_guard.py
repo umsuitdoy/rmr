@@ -15,19 +15,19 @@ def resolve_read_path(
     allow_missing: bool = False,
 ) -> Path:
     """
-    Phân giải symlink và cưỡng chế đường dẫn đọc phải nằm trong project_root.
+    Resolve symlinks and enforce that the target read path stays within project_root.
 
-    Tham số:
-        project_root: Đường dẫn gốc của project đã cấu hình.
-        rel_path: Đường dẫn tương đối do client truyền vào (có thể là None).
-        allow_missing: Cho phép file đã xóa khi duyệt index hoặc lịch sử Git.
+    Args:
+        project_root: Configured root directory of the project.
+        rel_path: Relative path provided by the client (may be None).
+        allow_missing: Allow missing/deleted files when inspecting Git index or history.
 
-    Trả về:
-        Path vật lý thực tế đã được chuẩn hóa.
+    Returns:
+        Normalized real filesystem Path.
 
-    Ngoại lệ:
-        PermissionError: Nếu đường dẫn thoát khỏi project_root hoặc vi phạm symlink.
-        FileNotFoundError: Nếu project_root hoặc file không tồn tại (khi strict=True).
+    Raises:
+        PermissionError: If the path escapes project_root or violates symlink boundaries.
+        FileNotFoundError: If project_root or the target file does not exist (when strict=True).
     """
     root = project_root.resolve(strict=True)
     if not rel_path:

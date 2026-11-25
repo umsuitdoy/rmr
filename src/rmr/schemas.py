@@ -17,26 +17,26 @@ __all__ = [
 
 
 class TreeState(BaseModel):
-    """Trạng thái git worktree và fingerprint nhất quán."""
+    """Git worktree state and consistency fingerprint."""
 
-    head_commit: str = Field(description="Mã băm ngắn 7 ký tự của commit HEAD hiện tại")
+    head_commit: str = Field(description="Short 7-character hash of the current HEAD commit")
     is_dirty: bool = Field(
-        description="True nếu working tree có file đã chỉnh sửa hoặc file mới chưa track"
+        description="True if the working tree has modified or untracked files"
     )
     worktree_fingerprint: str = Field(
-        description="Mã SHA-256 12 ký tự tính từ git status porcelain và mtime file bẩn"
+        description="12-character SHA-256 hash computed from git status porcelain and dirty file mtimes"
     )
 
 
 class ProjectConfig(BaseModel):
-    """Cấu hình khai báo dự án được quản lý bởi RMR."""
+    """Configuration for a project managed by RMR."""
 
-    project_id: str = Field(description="Định danh duy nhất của dự án")
-    root_path: str = Field(description="Đường dẫn vật lý tới thư mục gốc của dự án")
-    language: str = Field(default="python", description="Ngôn ngữ chính của dự án")
+    project_id: str = Field(description="Unique project identifier")
+    root_path: str = Field(description="Filesystem path to the project root directory")
+    language: str = Field(default="python", description="Primary programming language of the project")
     entry_docs: list[str] = Field(
         default_factory=list,
-        description="Danh sách tài liệu cốt lõi (README, architecture)",
+        description="List of core documentation files (e.g., README, architecture)",
     )
 
 
@@ -47,19 +47,19 @@ InvestigationMode = Literal["outline", "symbol", "grep", "ast", "callers", "call
 
 
 class InvestigateInput(BaseModel):
-    """Tham số điều tra mã nguồn đa chế độ."""
+    """Parameters for multi-mode codebase investigation."""
 
     project_id: str
     mode: InvestigationMode
     query: str = Field(
-        default="", description="Tên symbol, regex pattern, hoặc AST pattern"
+        default="", description="Symbol name, regex pattern, or AST pattern"
     )
     subpath: str | None = Field(
         default=None,
-        description="Đường dẫn tương đối. Với callers/callees/impact, chỉ định file định nghĩa symbol.",
+        description="Relative path. For callers/callees/impact, specifies the file defining the symbol.",
     )
     max_results: int = Field(
-        default=30, ge=1, le=50, description="Giới hạn số lượng kết quả (tối đa 50)"
+        default=30, ge=1, le=50, description="Maximum number of results (up to 50)"
     )
     depth: ImpactDepth | None = Field(default=None, description="Impact dependency depth (1–5; default 2)")
 
@@ -76,30 +76,30 @@ EvidenceKind = Literal["file_lines", "symbol", "git_diff"]
 
 
 class EvidenceTarget(BaseModel):
-    """Mục tiêu trích xuất bằng chứng kỹ thuật."""
+    """Target specification for technical evidence extraction."""
 
     kind: EvidenceKind
-    path: str = Field(description="Đường dẫn tương đối tới file trong dự án")
-    start_line: int | None = Field(default=None, ge=1, description="Dòng bắt đầu (1-indexed)")
-    end_line: int | None = Field(default=None, ge=1, description="Dòng kết thúc (1-indexed)")
-    symbol_name: str | None = Field(default=None, description="Tên class/hàm nếu kind='symbol'")
-    base_ref: str = Field(default="HEAD", description="Git ref cơ sở khi kind='git_diff'")
-    target_ref: str = Field(default="WORKTREE", description="Git ref đích hoặc 'WORKTREE'")
+    path: str = Field(description="Relative path to a file within the project")
+    start_line: int | None = Field(default=None, ge=1, description="Start line (1-indexed)")
+    end_line: int | None = Field(default=None, ge=1, description="End line (1-indexed)")
+    symbol_name: str | None = Field(default=None, description="Class or function name when kind='symbol'")
+    base_ref: str = Field(default="HEAD", description="Base Git ref when kind='git_diff'")
+    target_ref: str = Field(default="WORKTREE", description="Target Git ref or 'WORKTREE'")
 
 
 class EvidenceItem(BaseModel):
-    """Khối nội dung bằng chứng kỹ thuật được trích xuất an toàn."""
+    """Safely extracted technical evidence block."""
 
     kind: EvidenceKind
     path: str
     line_range: tuple[int, int] | None = None
-    content_sha256: str | None = Field(default=None, description="Mã SHA-256 của nội dung")
-    content: str = Field(description="Nội dung code hoặc diff")
-    truncated: bool = Field(default=False, description="True nếu nội dung bị cắt")
+    content_sha256: str | None = Field(default=None, description="SHA-256 hash of the content")
+    content: str = Field(description="Source code or diff content")
+    truncated: bool = Field(default=False, description="True if the content was truncated")
 
 
 class InspectEvidenceOutput(BaseModel):
-    """Kết quả trả về tổng hợp của inspect_evidence kèm fingerprint worktree."""
+    """Aggregated result from inspect_evidence including the worktree fingerprint."""
 
     project_id: str
     tree_state: TreeState

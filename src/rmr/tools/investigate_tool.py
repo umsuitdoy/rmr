@@ -19,7 +19,7 @@ __all__ = ["investigate_codebase", "register_investigate_tool"]
 
 
 def _normalize_match_file(raw_file: str, root: Path, target_path: Path) -> str | None:
-    """Giữ đường dẫn tương đối nếu kết quả là file trong project."""
+    """Return a project-relative POSIX path if the match points to a file inside the project."""
     cand = Path(raw_file)
     if not cand.is_absolute():
         cand = (target_path / cand) if target_path.is_dir() else (target_path.parent / cand)
@@ -52,7 +52,7 @@ def investigate_codebase(
     depth: int | None = None,
     projects: Mapping[str, ProjectConfig] | None = None,
 ) -> dict[str, Any]:
-    """Điều tra cấu trúc, tham chiếu và quan hệ gọi trong kho mã nguồn."""
+    """Investigate code structure, symbol references, and call relationships in a repository."""
     req = InvestigateInput(
         project_id=project_id,
         mode=mode,
@@ -152,7 +152,7 @@ def register_investigate_tool(
     *,
     projects: Mapping[str, ProjectConfig] | None = None,
 ) -> None:
-    """Đăng ký tool 'investigate_codebase' lên đối tượng FastMCP."""
+    """Register the 'investigate_codebase' tool on a FastMCP instance."""
 
     @mcp.tool(
         name="investigate_codebase",
@@ -163,12 +163,12 @@ def register_investigate_tool(
             "openWorldHint": False,
         },
         description=(
-            "Điều tra kho mã nguồn Tier 2: "
-            "'outline' (chữ ký class/hàm/docstring), 'symbol' (định nghĩa và references bằng Jedi), "
-            "'grep' (văn bản/regex), 'ast' (mẫu cú pháp), "
-            "'callers' (ai gọi symbol), 'callees' (symbol gọi ai), 'impact' (phụ thuộc bị ảnh hưởng). "
-            "Với callers/callees/impact, truyền tên symbol vào query và dùng subpath để chọn file "
-            "định nghĩa khi tên bị trùng. Impact dùng depth 1–5 (mặc định 2). Các chế độ này yêu cầu index CodeGraph cục bộ."
+            "Tier 2 codebase investigation: "
+            "'outline' (class/function signatures and docstrings), 'symbol' (definitions and references via Jedi), "
+            "'grep' (text/regex search), 'ast' (structural syntax patterns), "
+            "'callers' (incoming calls), 'callees' (outgoing calls), 'impact' (affected dependents). "
+            "For callers/callees/impact, pass the symbol name in query and use subpath to select the "
+            "defining file when names overlap. Impact uses depth 1–5 (default 2). These modes require a local CodeGraph index."
         ),
     )
     def investigate_codebase_tool(

@@ -38,7 +38,7 @@ URL_KEY_REGEX = re.compile(r"[A-Za-z0-9_-]+")
 
 
 def normalize_domain(value: str) -> str:
-    """Chuẩn hóa và xác thực domain / hostname (bare hostname hoặc HTTPS URL)."""
+    """Normalize and validate a domain or hostname (bare hostname or HTTPS URL)."""
     hostname = value.strip()
     if not hostname:
         raise ValueError("Domain cannot be empty.")
@@ -64,7 +64,7 @@ def normalize_domain(value: str) -> str:
 
 
 def validate_project_root(path: Path | str) -> Path:
-    """Xác thực đường dẫn là thư mục gốc của một Git worktree."""
+    """Validate that the path is the root directory of a Git worktree."""
     target = Path(path).resolve()
     if not target.exists():
         raise ValueError(f"Path does not exist: {target}")
@@ -97,7 +97,7 @@ def validate_project_root(path: Path | str) -> Path:
 
 
 def generate_url_key() -> str:
-    """Sinh khóa bảo vệ URL ngẫu nhiên an toàn (tối thiểu 32 ký tự)."""
+    """Generate a cryptographically secure URL protection key (at least 32 characters)."""
     return secrets.token_urlsafe(32)
 
 
@@ -113,22 +113,22 @@ def _validated_key_value(key: SecretStr | str) -> str:
 
 
 def build_mcp_path(key: SecretStr | str) -> str:
-    """Tạo đúng một đoạn đường dẫn MCP cho URL và route bảo vệ."""
+    """Build the single keyed MCP path segment for URLs and route protection."""
     return f"/mcp/{_validated_key_value(key)}"
 
 
 class DesktopSettings(BaseModel):
-    """Cấu hình phiên làm việc Desktop độc lập với registry hệ thống."""
+    """Desktop session configuration independent of the system registry."""
 
     model_config = ConfigDict(hide_input_in_errors=True)
 
     project_root: Annotated[Path, AfterValidator(validate_project_root)]
     domain: Annotated[str, Field(strict=True), AfterValidator(normalize_domain)]
     port: int = Field(
-        default=8000, strict=True, ge=1, le=65535, description="Cổng local (1-65535)"
+        default=8000, strict=True, ge=1, le=65535, description="Local port (1-65535)"
     )
     url_key: SecretStr = Field(
-        strict=True, description="Khóa bảo vệ URL an toàn (tối thiểu 32 ký tự)"
+        strict=True, description="Secure URL protection key (at least 32 characters)"
     )
 
     @field_validator("port", mode="before")
@@ -146,12 +146,12 @@ class DesktopSettings(BaseModel):
 
 
 def build_public_url(settings: DesktopSettings) -> str:
-    """Tạo URL HTTPS hoàn chỉnh để chia sẻ hoặc sao chép."""
+    """Build the full HTTPS MCP URL for sharing or copying."""
     return f"https://{settings.domain}{build_mcp_path(settings.url_key)}"
 
 
 def save_settings(path: Path, settings: DesktopSettings) -> None:
-    """Ghi cấu hình desktop nguyên tử ra file để bảo vệ khóa không bị hỏng nếu gặp sự cố."""
+    """Atomically write desktop settings to disk to prevent corrupting the key on failure."""
     target = Path(path).resolve()
     target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     payload = {
@@ -177,7 +177,7 @@ def save_settings(path: Path, settings: DesktopSettings) -> None:
 
 
 def load_settings(path: Path) -> DesktopSettings | None:
-    """Đọc cấu hình desktop từ file. Trả về None nếu file thiếu hoặc lỗi dữ liệu."""
+    """Load desktop settings from file. Returns None if missing or invalid."""
     try:
         target = Path(path)
         if not target.is_file():

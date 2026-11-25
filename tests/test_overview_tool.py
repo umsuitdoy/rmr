@@ -151,7 +151,7 @@ def test_register_overview_tool_fastmcp():
     assert tool.name == "get_project_overview"
     assert getattr(tool.annotations, "read_only_hint", getattr(tool.annotations, "readOnlyHint", None)) is True
 
-    # Xác nhận parameters schema chỉ phơi bày đúng project_id và subpath, không rò rỉ config_path
+    # Verify the parameter schema exposes only project_id and subpath, without leaking config_path
     schema = tool.parameters
     props = schema.get("properties", {})
     assert "project_id" in props

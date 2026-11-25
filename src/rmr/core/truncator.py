@@ -12,16 +12,16 @@ def truncate_text_lines(
     max_bytes: int = 8192,
 ) -> tuple[str, bool]:
     """
-    Cắt bớt chuỗi text nếu vượt quá giới hạn dòng hoặc dung lượng byte.
+    Truncate text if it exceeds line count or UTF-8 byte limits.
 
-    Tham số:
-        text: Chuỗi văn bản đầu vào.
-        max_lines: Giới hạn số dòng tối đa (mặc định 200).
-        max_bytes: Giới hạn kích thước byte tối đa (mặc định 8192 - 8KB).
+    Args:
+        text: Input text string.
+        max_lines: Maximum number of lines (default 200).
+        max_bytes: Maximum byte size (default 8192 - 8KB).
 
-    Trả về:
-        Tuple (nội dung_sau_cắt, cờ_truncated_bool).
-        Nếu bị cắt, đính kèm dòng thông báo:
+    Returns:
+        Tuple of (truncated_text, was_truncated).
+        When truncated, appends a notice line:
         '\\n[... Truncated: showing X of Y lines / bytes ...]'
     """
     lines = text.splitlines()
@@ -64,10 +64,10 @@ def truncate_text_lines(
 
 def truncate_list(items: list, max_count: int = 50) -> tuple[list, bool]:
     """
-    Cắt bớt danh sách nếu vượt quá max_count (mặc định 50 mục).
+    Truncate a list if it exceeds max_count (default 50 items).
 
-    Trả về:
-        Tuple (danh_sách_sau_cắt, cờ_truncated_bool).
+    Returns:
+        Tuple of (truncated_list, was_truncated).
     """
     if not isinstance(items, list):
         items = list(items)

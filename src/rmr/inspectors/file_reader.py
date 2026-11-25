@@ -15,7 +15,7 @@ __all__ = [
 
 
 def _resolve_safe_file(project_root: Path | str, rel_path: str) -> tuple[Path, Path, str]:
-    """Xác thực đường dẫn đọc an toàn trong project_root và chuẩn hóa đường dẫn POSIX."""
+    """Validate that a read path stays inside project_root and return its normalized POSIX path."""
     root = Path(project_root).resolve(strict=True)
     if not rel_path or not rel_path.strip():
         raise ValueError("rel_path must not be empty")
@@ -40,7 +40,7 @@ def read_file_lines(
     max_lines: int = 200,
     max_bytes: int = 8192,
 ) -> EvidenceItem:
-    """Đọc chính xác khoảng dòng của một file (1-indexed) kèm mã băm SHA-256 và cắt tải."""
+    """Read an exact 1-indexed line range from a file with SHA-256 hashing and truncation."""
     _, target_path, normalized_rel = _resolve_safe_file(project_root, rel_path)
     raw_text = target_path.read_text(encoding="utf-8", errors="replace")
     all_lines = raw_text.splitlines()
@@ -77,7 +77,7 @@ def read_file_lines(
 
 
 def _find_symbol_lines(symbols: list[dict], symbol_name: str) -> tuple[int, int] | None:
-    """Tìm khoảng dòng [line_start, line_end] của function/class hoặc Class.method."""
+    """Find the [line_start, line_end] bounds of a function, class, or Class.method."""
     if "." in symbol_name:
         cls_name, meth_name = symbol_name.split(".", 1)
         for sym in symbols:
@@ -109,7 +109,7 @@ def read_symbol_content(
     max_lines: int = 200,
     max_bytes: int = 8192,
 ) -> EvidenceItem:
-    """Đọc trọn vẹn nội dung của một function/class theo symbol_name trong file."""
+    """Read the full source body of a named function or class in a file."""
     root, target_path, normalized_rel = _resolve_safe_file(project_root, rel_path)
     outline = extract_file_outline(target_path, normalized_rel)
     line_bounds = _find_symbol_lines(outline.get("symbols", []), symbol_name)

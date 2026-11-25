@@ -38,7 +38,7 @@ def create_app() -> FastMCP:
             "idempotentHint": True,
             "openWorldHint": False,
         },
-        description="Kiểm tra trạng thái sẵn sàng của RMR MCP Server.",
+        description="Check readiness status of the RMR MCP Server.",
     )
     def ping() -> dict[str, str]:
         return {"status": "ok", "system": "RMR Read-Only MCP"}

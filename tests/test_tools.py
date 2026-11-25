@@ -23,7 +23,7 @@ def _init_git_repo(path: Path) -> None:
 
 @pytest.fixture
 def sample_rmr_env(tmp_path: Path):
-    """Thiết lập môi trường kiểm thử đầy đủ: repo git, tài liệu, ADRs và config."""
+    """Set up a complete test environment: git repo, docs, ADRs, and config."""
     repo_dir = tmp_path / "repo"
     repo_dir.mkdir()
     _init_git_repo(repo_dir)
@@ -107,7 +107,7 @@ def test_local_mcp_exposes_read_only_tools():
 
 
 def test_tool_get_project_overview_list_and_detail(sample_rmr_env):
-    """2. Tool 1 (get_project_overview): kiểm tra cả danh sách projects và thông tin chi tiết."""
+    """2. Tool 1 (get_project_overview): verify both project listing and detail modes."""
     cfg = sample_rmr_env["config_path"]
 
     # 2.1. List mode (project_id=None)
@@ -146,7 +146,7 @@ def test_tool_get_project_overview_list_and_detail(sample_rmr_env):
 
 
 def test_tool_investigate_codebase_all_modes(sample_rmr_env):
-    """3. Tool 2 (investigate_codebase): kiểm tra cả 4 chế độ outline, symbol, grep, ast."""
+    """3. Tool 2 (investigate_codebase): verify outline, symbol, grep, and ast modes."""
     cfg = sample_rmr_env["config_path"]
 
     # 3.1. Outline mode
@@ -197,7 +197,7 @@ def test_tool_investigate_codebase_all_modes(sample_rmr_env):
 
 
 def test_tool_inspect_evidence_lines_symbol_and_diff(sample_rmr_env):
-    """4. Tool 3 (inspect_evidence): kiểm tra file_lines, symbol, git_diff, SHA-256 và cắt tải."""
+    """4. Tool 3 (inspect_evidence): verify file_lines, symbol, git_diff, SHA-256, and truncation."""
     cfg = sample_rmr_env["config_path"]
     repo = sample_rmr_env["repo_dir"]
 

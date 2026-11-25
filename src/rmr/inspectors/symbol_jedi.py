@@ -25,14 +25,14 @@ JEDI_ERRORS = (
 
 
 def _configure_jedi_cache() -> None:
-    """Cấu hình cache trỏ vào tempdir để tránh lỗi phân quyền trên Windows."""
+    """Point Jedi/parso caches to tempdir to avoid permission issues on Windows."""
     tmp = Path(tempfile.gettempdir()) / "rmr_jedi_cache"
     parso.cache._default_cache_path = tmp
     jedi.settings.cache_directory = tmp
 
 
 def _locate_target_def(project: jedi.Project, symbol: str, hint: Path | None):
-    """Tìm đối tượng định nghĩa symbol qua file gợi ý hoặc tìm kiếm toàn dự án."""
+    """Locate a symbol's definition using the hint file or project-wide search."""
     if hint and hint.is_file():
         try:
             s = jedi.Script(path=hint, project=project)
@@ -75,7 +75,7 @@ def _locate_target_def(project: jedi.Project, symbol: str, hint: Path | None):
 
 
 def _format_definition(target_def, root: Path) -> tuple[dict | None, Path | None]:
-    """Định dạng vị trí định nghĩa của symbol."""
+    """Format the definition location metadata for a symbol."""
     if not getattr(target_def, "module_path", None):
         return None, None
     def_path = resolve_project_file(root, Path(target_def.module_path))
@@ -103,7 +103,7 @@ def find_symbol(
     subpath: str | None = None,
     max_results: int = 30,
 ) -> dict:
-    """Tìm vị trí định nghĩa và danh sách nơi tham chiếu của một symbol bằng Jedi."""
+    """Locate a symbol's definition and references using Jedi."""
     root = Path(project_root).resolve(strict=True)
     hint_path = resolve_read_path(root, subpath) if subpath else None
     _configure_jedi_cache()

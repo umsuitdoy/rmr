@@ -47,7 +47,7 @@ def _extract_title(content: str, fallback: str) -> str:
 
 
 def _get_entry_docs_summary(root: Path, entry_docs: list[str]) -> list[dict[str, Any]]:
-    """Trích xuất bản xem trước ngắn gọn (tối đa 40 dòng) của các tài liệu gốc."""
+    """Extract short previews (up to 40 lines) of the configured entry documents."""
     results: list[dict[str, Any]] = []
     for doc_rel in entry_docs:
         norm = doc_rel.replace("\\", "/")
@@ -76,7 +76,7 @@ def _get_entry_docs_summary(root: Path, entry_docs: list[str]) -> list[dict[str,
 
 
 def _get_project_adrs(root: Path) -> list[dict[str, Any]]:
-    """Quét và trích xuất danh sách tóm tắt các ADRs (.rmr/adr/*.md)."""
+    """Scan and extract summary metadata for ADRs (.rmr/adr/*.md)."""
     try:
         adr_dir = resolve_read_path(root, ".rmr/adr")
     except (OSError, RuntimeError):
@@ -110,7 +110,7 @@ def get_project_overview(
     *,
     projects: Mapping[str, ProjectConfig] | None = None,
 ) -> dict[str, Any]:
-    """Lấy thông tin tổng quan Tier 1 của hệ thống hoặc của một dự án cụ thể."""
+    """Return a Tier 1 overview of registered projects or a specific project."""
     if not project_id:
         configs = projects if projects is not None else load_projects_config(config_path)
         projects_list = [
@@ -147,7 +147,7 @@ def register_overview_tool(
     *,
     projects: Mapping[str, ProjectConfig] | None = None,
 ) -> None:
-    """Đăng ký tool 'get_project_overview' lên đối tượng FastMCP."""
+    """Register the 'get_project_overview' tool on a FastMCP instance."""
 
     @mcp.tool(
         name="get_project_overview",
@@ -158,8 +158,8 @@ def register_overview_tool(
             "openWorldHint": False,
         },
         description=(
-            "Lấy thông tin tổng quan Tier 1: danh sách dự án (khi không truyền project_id) "
-            "hoặc cây file, tài liệu cơ sở (entry_docs), ADRs và trạng thái working tree (tree_state)."
+            "Get a Tier 1 project overview: list registered projects (when project_id is omitted) "
+            "or return the file tree, entry documents (entry_docs), ADRs, and working tree state (tree_state)."
         ),
     )
     def get_project_overview_tool(

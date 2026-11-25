@@ -113,7 +113,7 @@ def test_desktop_form_copy_start_stop_and_persist(root, repo, tmp_path, monkeypa
     assert key not in window.notice.get()
 
     window.start()
-    _wait(root, lambda: window.tunnel_status.get() == "Đang chạy")
+    _wait(root, lambda: window.tunnel_status.get() == "Online")
     assert controller.starts[0].port == 8181
     assert all(widget.instate(["disabled"]) for widget in window._session_fields)
 
@@ -122,7 +122,7 @@ def test_desktop_form_copy_start_stop_and_persist(root, repo, tmp_path, monkeypa
     assert controller.stops == 1
     window._rotate_key()
     assert window.fields["url_key"].get() != key
-    assert "URL cũ" in window.rotation_notice.get()
+    assert "previous URL" in window.rotation_notice.get()
     rotated_url = window.url.get()
     window.close()
     _wait(root, lambda: _window_closed(root))
